@@ -1,9 +1,14 @@
-import { useState} from 'react';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {useCookies } from 'react-cookie';
 function Login()
 {
     const [id, setInputId]= useState('');
     const [pw, setInputPw]=useState('');
-    
+    const[cookies ,setCookie, removeCookie]= useCookies(['token']);
+    const navigate = useNavigate();
+
+
     const handleInputId = (e) => {
         setInputId(e.target.value)
     }
@@ -15,15 +20,21 @@ function Login()
     const onClickLogin = (e) => {
         const postInfo={ method: "POST", headers: {'content-type' : 'application/json'} , body : JSON.stringify({id,pw})};
         fetch('http://localhost:3001/login', postInfo)
-        .then((response)=> console.log(response.data)
-        // .then(){
-        //     if(data.response == 'success')
-        //     {
-        //         alert("Success");
-        //         window.location = "http://localhost:3001/login";
-        //     }
-        // }
-        )
+        .then((response)=> response.json()) // JSON.stringify();
+        .then((data) => {
+            console.log(data);
+            if(data.s == 'success')
+            {
+                alert("Success");
+                setCookie('token', data.token);//token을 저장시킴
+                navigate('/accesstoken');
+                
+            }
+            else{
+                alert("Try again");
+            }
+        });
+        
     }
 
     return (
